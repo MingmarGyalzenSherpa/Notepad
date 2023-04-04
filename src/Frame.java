@@ -13,7 +13,9 @@ public class Frame extends JFrame implements ActionListener {
 
     JFileChooser fileChooser;
 
-//    FileNameExtensionFilter fileNameExtensionFilter;
+    String latest = "";
+
+    FileNameExtensionFilter fileNameExtensionFilter;
     String text;
     FileReader fileReader;
     FileWriter fileWriter;
@@ -22,12 +24,13 @@ public class Frame extends JFrame implements ActionListener {
     JMenuBar menu = new JMenuBar();
     JMenu fileMenu = new JMenu("File");
     JMenuItem fileMenuItemSaveAs = new JMenuItem("Save As");
+    JMenuItem fileMenuItemOpen = new JMenuItem("Open");
     JTextArea textArea;
 
     Frame(){
-
-//       fileNameExtensionFilter = new FileNameExtensionFilter();
-
+        fileChooser = new JFileChooser();
+       fileNameExtensionFilter = new FileNameExtensionFilter("text","txt","docx");
+       fileChooser.addChoosableFileFilter(fileNameExtensionFilter);
         setMenu();
 
         setTextArea();
@@ -45,9 +48,12 @@ public class Frame extends JFrame implements ActionListener {
 
     private void setMenu(){
         fileMenu.add(fileMenuItemSaveAs);
+        fileMenu.add(fileMenuItemOpen);
         fileMenu.setPreferredSize(new Dimension(50,30));
         menu.add(fileMenu);
         fileMenuItemSaveAs.addActionListener(this);
+        fileMenuItemOpen.addActionListener(this);
+
 
     }
     private void setTextArea(){
@@ -62,6 +68,14 @@ public class Frame extends JFrame implements ActionListener {
         {
             try {
                 saveFile();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        if(e.getSource() == fileMenuItemOpen)
+        {
+            try {
+                openFile();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -92,7 +106,6 @@ public class Frame extends JFrame implements ActionListener {
     public void saveFile() throws IOException {
         boolean status;
 
-        fileChooser = new JFileChooser();
 
         int response = fileChooser.showSaveDialog(null); //show dialog box
 
@@ -114,5 +127,23 @@ public class Frame extends JFrame implements ActionListener {
 
         }
 
+    }
+
+    public void openFile() throws IOException{
+        String texts = "";
+        fileChooser.addChoosableFileFilter(fileNameExtensionFilter);
+        int response = fileChooser.showOpenDialog(null);
+
+        if(response == JFileChooser.APPROVE_OPTION)
+        {
+            file = fileChooser.getSelectedFile();
+            fileReader = new FileReader(file);
+            int character;
+            while( (character = fileReader.read()) != -1)
+            {
+                texts += (char)character;
+            }
+            textArea.setText(texts);
+        }
     }
 }
