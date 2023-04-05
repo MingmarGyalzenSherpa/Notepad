@@ -3,11 +3,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.sql.SQLOutput;
 
 public class Frame extends JFrame implements ActionListener {
 
@@ -20,6 +22,7 @@ public class Frame extends JFrame implements ActionListener {
     FileReader fileReader;
     FileWriter fileWriter;
 
+    MyKeyAdapter myKeyAdapter;
     File file;
     JMenuBar menu = new JMenuBar();
     JMenu fileMenu = new JMenu("File");
@@ -28,6 +31,8 @@ public class Frame extends JFrame implements ActionListener {
     JTextArea textArea;
 
     Frame(){
+
+        myKeyAdapter = new MyKeyAdapter();
         fileChooser = new JFileChooser();
        fileNameExtensionFilter = new FileNameExtensionFilter("text","txt","docx");
        fileChooser.addChoosableFileFilter(fileNameExtensionFilter);
@@ -35,6 +40,7 @@ public class Frame extends JFrame implements ActionListener {
 
         setTextArea();
 
+        textArea.addKeyListener(myKeyAdapter);
         this.setSize(new Dimension(500, 500));
         this.setLayout(new BorderLayout());
         this.add(menu,BorderLayout.NORTH);
@@ -146,4 +152,75 @@ public class Frame extends JFrame implements ActionListener {
             textArea.setText(texts);
         }
     }
+
+    public class MyKeyAdapter extends KeyAdapter {
+
+        int CtrlKeyCode = 17;
+        int SKeyCode = 83;
+        int OKeyCode = 79;
+
+        int keysPressed = 0;
+
+        boolean CtrlPressed = false;
+        boolean SPressed = false;
+
+        boolean OPressed = false;
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            super.keyPressed(e);
+            if(e.getKeyCode() == CtrlKeyCode)
+            {
+                CtrlPressed = true;
+                System.out.println("CTRL PRESSED");
+
+            }
+
+            if(CtrlPressed)
+            {
+                if(e.getKeyCode() == SKeyCode && !OPressed)
+                {
+                    SPressed = true;
+                    System.out.println("CTRL + S PRESSED");
+                } else if (e.getKeyCode() == OKeyCode && !SPressed) {
+
+                    System.out.println("CTRL + O PRESSED");
+                    OPressed = true;
+
+                }
+            }
+
+            if(CtrlPressed && OPressed)
+            {
+                CtrlPressed = false;
+                OPressed = false;
+                try {
+                    openFile();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            if(CtrlPressed && SPressed)
+            {
+                CtrlPressed = false;
+                SPressed = false;
+                try {
+                    saveFile();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+
+
+
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            super.keyTyped(e);
+
+        }
+    }
+
 }
